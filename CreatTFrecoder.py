@@ -40,11 +40,13 @@ def load_file(examples_list_file):
     return np.asarray(examples), np.asarray(labels), len(labels)
 
 def extract_image(filename,  resize_height, resize_width):
-    filename = 'train/'+filename+'.jpeg'
-    image = cv2.imread(filename)
+    filename1 = 'train/'+filename+'.jpeg'
+    #image = cv2.imread(filename1,cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    image = cv2.imread(filename1)
     image = cv2.resize(image, (resize_height, resize_width))
-    #b,g,r = cv2.split(image)       
-    #rgb_image = cv2.merge([r,g,b])     
+    b,g,r = cv2.split(image)       
+    rgb_image = cv2.merge([r,g,b])     
+    cv2.imwrite(filename+'.jpeg', image)
     return image
 
 def transform2tfrecord(train_file, name, output_directory, resize_height, resize_width):
@@ -56,13 +58,13 @@ def transform2tfrecord(train_file, name, output_directory, resize_height, resize
     for i, [example, label] in enumerate(zip(_examples, _labels)):
         print('No.%d' % (i))
         image = extract_image(example, resize_height, resize_width)
-        print('shape: %d, %d, %d, label: %d' % (image.shape[0], image.shape[1], image.shape[2], label))
+        print('shape: %d, %d, %d, label: %d' % (image.shape[0], image.shape[1], 3, label))
         image_raw = image.tostring()
         example = tf.train.Example(features=tf.train.Features(feature={
             'image_raw': _bytes_feature(image_raw),
             'height': _int64_feature(image.shape[0]),
             'width': _int64_feature(image.shape[1]),
-            'depth': _int64_feature(image.shape[2]),
+            'depth': _int64_feature(3),
             'label': _int64_feature(label)
         }))
         writer.write(example.SerializeToString())
@@ -95,10 +97,10 @@ def disp_tfrecords(tfrecord_list_file):
         sess.run(init_op)
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-        for i in range(21):
+        for i in range(6):
             image_eval = image.eval()
             resultLabel.append(label.eval())
-            image_eval_reshape = image_eval.reshape([height.eval(), width.eval(), depth.eval()])
+            image_eval_reshape = image_eval.reshape([height.eval(), width.eval(),3])
             resultImg.append(image_eval_reshape)
             pilimg = Image.fromarray(np.asarray(image_eval_reshape))
             pilimg.show()
@@ -122,8 +124,10 @@ def read_tfrecord(filename_queuetemp):
     )
     image = tf.decode_raw(features['image_raw'], tf.uint8)
     # image
-    tf.reshape(image, [299, 299, 1])
+    depth = features['depth']
+    tf.reshape(image, [299, 299, 3])
     # normalize
+    
     image = tf.cast(image, tf.float32) * (1. /255) - 0.5
     # label
     label = tf.cast(features['label'], tf.int32)
