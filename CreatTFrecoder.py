@@ -30,17 +30,17 @@ def _bytes_feature(value):
 
 def load_file(examples_list_file):
     #lines = np.genfromtxt(examples_list_file, delimiter=" ", dtype=[('col1', 'S120'), ('col2', 'i8')])
-    trainLabels = pd.read_csv(examples_list_file.csv)
+    trainLabels = pd.read_csv(examples_list_file)
 
     examples = trainLabels.Id
     labels = trainLabels.Class
     #for example, label in lines:
     #    examples.append(example)
     #    labels.append(label)
-    return np.asarray(examples), np.asarray(labels), len(lables)
+    return np.asarray(examples), np.asarray(labels), len(labels)
 
 def extract_image(filename,  resize_height, resize_width):
-    filename = 'train_asm_image/'+filename+'.jpeg'
+    filename = 'train/'+filename+'.jpeg'
     image = cv2.imread(filename)
     image = cv2.resize(image, (resize_height, resize_width))
     #b,g,r = cv2.split(image)       
@@ -133,7 +133,7 @@ def test():
     transform2tfrecord(train_file, name , output_directory,  resize_height, resize_width) 
     #img,label=disp_tfrecords(output_directory+'/'+name+'.tfrecords') 
     #img,label=read_tfrecord(output_directory+'/'+name+'.tfrecords') 
-    print label
+    #print label
 
 if __name__ == '__main__':
     test()
