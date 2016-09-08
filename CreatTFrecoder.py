@@ -41,11 +41,11 @@ def load_file(examples_list_file):
 
 def extract_image(filename,  resize_height, resize_width):
     filename1 = 'train/'+filename+'.jpeg'
-    #image = cv2.imread(filename1,cv2.CV_LOAD_IMAGE_GRAYSCALE)
-    image = cv2.imread(filename1)
+    image = cv2.imread(filename1,cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    #image = cv2.imread(filename1)
     image = cv2.resize(image, (resize_height, resize_width))
-    b,g,r = cv2.split(image)       
-    rgb_image = cv2.merge([r,g,b])     
+    #b,g,r = cv2.split(image)       
+    #rgb_image = cv2.merge([r,g,b])     
     cv2.imwrite(filename+'.jpeg', image)
     return image
 
